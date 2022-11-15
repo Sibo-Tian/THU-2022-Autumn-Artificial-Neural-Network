@@ -1,0 +1,2 @@
+以默认参数运行即可得到报告中的CNN-Benchmark
+在./cnn/model.py中的class Model的init函数中，取消掉Dropout1d的注释，并且注释相邻的Dropout，即可得到使用Dropout1d的模型；

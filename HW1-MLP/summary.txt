@@ -1,0 +1,134 @@
+########################
+# Filled Code
+########################
+# ../codes/layers.py:1
+        super(Relu, self)._saved_for_backward(input)
+        return (abs(input)+input)/2
+
+# ../codes/layers.py:2
+        input = self._saved_tensor
+        input[input <= 0] = 0
+        input[input > 1] = 1
+
+        grad_input = input * grad_output
+        return grad_input
+
+# ../codes/layers.py:3
+        super(Sigmoid, self)._saved_for_backward(input)
+        res = 1/(1+np.exp(-input))
+        return res
+
+# ../codes/layers.py:4
+        res = 1/(1+np.exp(-self._saved_tensor))
+        grad_input = grad_output*(res*(1-res))
+        return grad_input
+
+# ../codes/layers.py:5
+        super(Gelu, self)._saved_for_backward(input)
+        res = 0.5*input*(1+np.tanh(np.sqrt(2/np.pi)*(input+0.044715*np.power(input,3))))
+        return res
+
+# ../codes/layers.py:6
+        delta = 1e-5
+        input = self._saved_tensor
+        res = 0.5*input*(1+np.tanh(np.sqrt(2/np.pi)*(input+0.044715*np.power(input,3))))
+        input += delta
+        _res = 0.5*input*(1+np.tanh(np.sqrt(2/np.pi)*(input+0.044715*np.power(input,3))))
+        grad = (_res-res)/delta
+        grad_input = grad_output*grad
+        return grad_input
+
+# ../codes/layers.py:7
+        output = np.matmul(input, self.W) + self.b
+        super(Linear, self)._saved_for_backward(input)
+        return output
+
+# ../codes/layers.py:8
+        #backpropagate the gradient
+        grad_input = np.matmul(grad_output, self.W.T)
+
+        #update gradient of w and b
+        input = self._saved_tensor
+        self.grad_W = np.matmul(input.T, grad_output)
+        self.grad_b = grad_output.sum(0)
+
+        return grad_input
+
+# ../codes/loss.py:1
+        loss = ((input-target)**2).sum(-1)
+        batch_size = len(input)
+        loss = loss.sum(-1)/(2*batch_size)
+        return loss
+
+# ../codes/loss.py:2
+        batch_size = len(input)
+        grad = (input-target)/batch_size
+        return grad
+
+# ../codes/loss.py:3
+        batch_size = len(input)
+
+        numerator = np.exp(input)
+        denominator = numerator.sum(-1)
+
+        softmax = ((numerator.T)/denominator).T
+        loss = -((target*(np.log(softmax))).sum(-1))
+        loss = loss.sum(-1)/batch_size
+        return loss
+
+# ../codes/loss.py:4
+        batch_size = len(input)
+        exp_input = np.exp(input)
+        exp_denominator = exp_input.sum(-1)
+        soft_max = ((exp_input.T)/exp_denominator).T
+
+        grad = target-soft_max
+        grad = -grad/batch_size
+
+        return grad
+
+# ../codes/loss.py:5
+        batch_size = len(input)
+        x_t = (input * target).sum(-1)
+        tmp = ((input.T)-x_t).T
+
+        tmp = tmp + self.margin
+        adjust = target * self.margin
+        tmp = tmp - adjust
+        tmp[tmp<0] = 0
+
+        loss = ((tmp.sum(-1)).sum(-1))/batch_size
+        return loss
+
+# ../codes/loss.py:6
+        batch_size = len(input)
+        x_t = (input * target).sum(-1)
+        tmp = ((input.T)-x_t).T
+        tmp += self.margin
+        adjust = target * self.margin
+        tmp = tmp - adjust
+
+        tmp[tmp>0] = 1
+        tmp[tmp<1] = 0
+
+        adjust = -tmp.sum(-1)
+        adjust = ((target.T)*adjust).T
+
+        tmp = tmp + adjust
+        tmp = tmp/batch_size
+        return tmp
+
+
+########################
+# References
+########################
+
+########################
+# Other Modifications
+########################
+# _codes/layers.py -> ../codes/layers.py
+# 66 -
+# 78 +
+# _codes/loss.py -> ../codes/loss.py
+# 63 +         self.margin = margin
+
